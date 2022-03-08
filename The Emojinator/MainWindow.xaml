@@ -1,0 +1,26 @@
+﻿<Window x:Class="The_Emojinator.MainWindow"
+		xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+		xmlns:local="clr-namespace:The_Emojinator" xmlns:wpftk="clr-namespace:WpfToolkit.Controls;assembly=VirtualizingWrapPanel"
+        mc:Ignorable="d"
+		Title="The Emojinator" Height="425" Width="350"
+		Top="0" Left="0">
+	<!--        FocusManager.FocusedElement="{Binding ElementName=EmojiFilterTextBox}"> -->
+	<Grid x:Name="emoji_grid">
+		<ListBox ItemsSource="{Binding Path=Emojis}"
+				  ScrollViewer.VerticalScrollBarVisibility="Visible">
+			<ListBox.ItemTemplate>
+				<DataTemplate>
+					<Image Width="24" Height="24" Source="{Binding Path=Url}"/>
+				</DataTemplate>
+			</ListBox.ItemTemplate>
+            <ListBox.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <wpftk:VirtualizingWrapPanel Orientation="Horizontal" />
+                </ItemsPanelTemplate>
+            </ListBox.ItemsPanel>
+		</ListBox>
+	</Grid>
+</Window>
