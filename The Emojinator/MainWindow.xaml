@@ -12,14 +12,31 @@
 		<DockPanel>
             <TextBox x:Name="EmojiFilterTextBox"
                      DockPanel.Dock="Top"
-                     Text="{Binding Path=EmojiFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                     Text="{Binding Path=EmojiFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                     PreviewKeyDown="EmojiFilterTextBox_PreviewKeyDown">
             </TextBox>
-			<ListBox DockPanel.Dock="Bottom"
+			<ListBox x:Name="EmojiListBox"
+                     DockPanel.Dock="Bottom"
                      ItemsSource="{Binding Path=FilteredEmojis}"
-					 ScrollViewer.VerticalScrollBarVisibility="Visible">
+					 ScrollViewer.VerticalScrollBarVisibility="Visible"
+                     LayoutUpdated="EmojiListBox_LayoutUpdated">
 				<ListBox.ItemTemplate>
 					<DataTemplate>
-						<Image Width="24" Height="24" Source="{Binding Path=Url}"/>
+                        <Border>
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="BorderThickness" Value="2" />
+                                    <Setter Property="BorderBrush" Value="Transparent" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=ListBoxItem}}" Value="True">
+                                            <Setter Property="BorderBrush" Value="Blue" />
+                                            <Setter Property="BorderThickness" Value="2" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <Image Width = "24" Height="24" Source="{Binding Path=Url}"/>
+                        </Border>
 					</DataTemplate>
 				</ListBox.ItemTemplate>
 				<ListBox.ItemsPanel>

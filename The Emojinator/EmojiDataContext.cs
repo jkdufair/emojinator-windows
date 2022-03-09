@@ -14,10 +14,12 @@ namespace The_Emojinator
 
 		public EmojiDataContext()
 		{
-			FetchEmojiListAsync();
-		}
+			#pragma warning disable CS4014 // We don't need to await here. Binding will update when it comes back
+            FetchEmojiListAsync();
+			#pragma warning restore CS4014
+        }
 
-        public IEnumerable<Emoji> AllEmojis { get; set; }
+        public IEnumerable<Emoji>? AllEmojis { get; set; }
 
         public IEnumerable<Emoji>? FilteredEmojis
 		{
