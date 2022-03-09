@@ -3,24 +3,31 @@
 		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 		xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-		xmlns:local="clr-namespace:The_Emojinator" xmlns:wpftk="clr-namespace:WpfToolkit.Controls;assembly=VirtualizingWrapPanel"
-        mc:Ignorable="d"
+        xmlns:wpftk="clr-namespace:WpfToolkit.Controls;assembly=VirtualizingWrapPanel"
+		mc:Ignorable="d"
 		Title="The Emojinator" Height="425" Width="350"
-		Top="0" Left="0">
-	<!--        FocusManager.FocusedElement="{Binding ElementName=EmojiFilterTextBox}"> -->
+		Top="0" Left="0"
+		FocusManager.FocusedElement="{Binding ElementName=EmojiFilterTextBox}">
 	<Grid x:Name="emoji_grid">
-		<ListBox ItemsSource="{Binding Path=Emojis}"
-				  ScrollViewer.VerticalScrollBarVisibility="Visible">
-			<ListBox.ItemTemplate>
-				<DataTemplate>
-					<Image Width="24" Height="24" Source="{Binding Path=Url}"/>
-				</DataTemplate>
-			</ListBox.ItemTemplate>
-            <ListBox.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <wpftk:VirtualizingWrapPanel Orientation="Horizontal" />
-                </ItemsPanelTemplate>
-            </ListBox.ItemsPanel>
-		</ListBox>
+		<DockPanel>
+            <TextBox x:Name="EmojiFilterTextBox"
+                     DockPanel.Dock="Top"
+                     Text="{Binding Path=EmojiFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+            </TextBox>
+			<ListBox DockPanel.Dock="Bottom"
+                     ItemsSource="{Binding Path=FilteredEmojis}"
+					 ScrollViewer.VerticalScrollBarVisibility="Visible">
+				<ListBox.ItemTemplate>
+					<DataTemplate>
+						<Image Width="24" Height="24" Source="{Binding Path=Url}"/>
+					</DataTemplate>
+				</ListBox.ItemTemplate>
+				<ListBox.ItemsPanel>
+					<ItemsPanelTemplate>
+						<wpftk:VirtualizingWrapPanel Orientation="Vertical" />
+					</ItemsPanelTemplate>
+				</ListBox.ItemsPanel>
+			</ListBox>
+		</DockPanel>
 	</Grid>
 </Window>
