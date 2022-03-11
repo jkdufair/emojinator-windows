@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Windows;
-using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace The_Emojinator
 {
@@ -23,22 +22,36 @@ namespace The_Emojinator
 			var isHandled = false;
 			switch (e.Key)
 			{
-				case System.Windows.Input.Key.Up:
-					EmojiListBox.SelectedItem = EmojiListBox.Items.GetItemAt(Math.Min(selectedIndex + 8, EmojiListBox.Items.Count));
+				case Key.Up:
+					EmojiListBox.SelectedItem = EmojiListBox.Items.GetItemAt(
+						Math.Max(selectedIndex - 8, 0));
 					isHandled = true;
 					break;
-				case System.Windows.Input.Key.Down:
-					EmojiListBox.SelectedItem = EmojiListBox.Items.GetItemAt(Math.Max(selectedIndex - 8, 0));
+				case Key.Down:
+					EmojiListBox.SelectedItem = EmojiListBox.Items.GetItemAt(
+						Math.Min(selectedIndex + 8, EmojiListBox.Items.Count));
 					isHandled = true;
 					break;
-				case System.Windows.Input.Key.Left:
+				case Key.Left:
 					isHandled = true;
-					EmojiListBox.SelectedItem = EmojiListBox.Items.GetItemAt(Math.Max(selectedIndex - 1, 0));
+					EmojiListBox.SelectedItem = EmojiListBox.Items.GetItemAt(
+						Math.Max(selectedIndex - 1, 0));
 					break;
-				case System.Windows.Input.Key.Right:
+				case Key.Right:
 					isHandled = true;
-					EmojiListBox.SelectedItem = EmojiListBox.Items.GetItemAt(Math.Min(selectedIndex + 1, EmojiListBox.Items.Count));
+					EmojiListBox.SelectedItem = EmojiListBox.Items.GetItemAt(
+						Math.Min(selectedIndex + 1, EmojiListBox.Items.Count));
 					break;
+				case Key.Enter:
+					isHandled = true;
+                    if (EmojiListBox.SelectedItem is Emoji selectedEmoji && selectedEmoji.Name != null)
+                    {
+                        Clipboard.SetText(
+                            $"Version:1.0{Environment.NewLine}StartHTML:000000096{Environment.NewLine}EndHTML:000000{280 + selectedEmoji.Name.Length}{Environment.NewLine}StartFragment:000000186{Environment.NewLine}EndFragment:000000{266 + selectedEmoji.Name.Length}" +
+                            $"{Environment.NewLine}<html><head><meta http-equiv=Content-Type content=\"text/html;charset=utf-8\"></head><body><meta charset='utf-8'><img src=\"{selectedEmoji.Url}\"/></body></html>",
+                        TextDataFormat.Html);
+                    }
+                    break;
 				default:
 					break;
 			}

@@ -35,7 +35,7 @@
                                     </Style.Triggers>
                                 </Style>
                             </Border.Style>
-                            <Image Width = "24" Height="24" Source="{Binding Path=Url}"/>
+                            <Image x:Name="ItemImage" Width = "24" Height="24" Source="{Binding Path=Url}"/>
                         </Border>
 					</DataTemplate>
 				</ListBox.ItemTemplate>
