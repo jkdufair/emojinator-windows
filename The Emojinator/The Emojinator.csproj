@@ -2,15 +2,22 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net6.0-windows</TargetFramework>
+    <TargetFramework>net472</TargetFramework>
     <RootNamespace>The_Emojinator</RootNamespace>
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
+	<LangVersion>preview</LangVersion>
+	<ApplicationIcon>teams-dumpsterfire-3.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="VirtualizingWrapPanel" Version="1.5.7" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Windows.Forms" />
   </ItemGroup>
 
 </Project>

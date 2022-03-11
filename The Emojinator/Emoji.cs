@@ -6,7 +6,7 @@ namespace The_Emojinator
 	{
         public string? Name { get; set; }
 
-        public string? Url {
+        public string Url {
             get
             {
                 return $"https://emoji-server.azurewebsites.net/emoji/{Name}";

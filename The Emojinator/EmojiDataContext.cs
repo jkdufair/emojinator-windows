@@ -45,7 +45,7 @@ namespace The_Emojinator
 				_emojiFilter = value;
 				OnPropertyChanged(nameof(EmojiFilter));
 				if (AllEmojis == null) return;
-				if (string.IsNullOrEmpty(value) || value.Length < 3)
+				if (string.IsNullOrEmpty(value) || value?.Length < 3)
 					FilteredEmojis = AllEmojis;
 				else
 					FilteredEmojis = AllEmojis.Where(x => x.Name != null && x.Name.Contains(value));
@@ -62,18 +62,20 @@ namespace The_Emojinator
 
 		private async Task FetchEmojiListAsync()
 		{
-			using HttpClient httpClient = new();
-			var response = await httpClient.GetAsync("https://emoji-server.azurewebsites.net/emojis");
-			if (response == null) return;
-			var emojis = await response.Content.ReadAsStringAsync();
-			if (emojis == null) return;
-			var deserializedEmojis = JsonConvert.DeserializeObject<List<string>>(emojis);
-			if (deserializedEmojis == null) return;
-			AllEmojis = deserializedEmojis.Select(name => new Emoji
-			{
-				Name = name
-			});
-			FilteredEmojis = AllEmojis;
+			using (var httpClient = new HttpClient())
+            {
+				var response = await httpClient.GetAsync("https://emoji-server.azurewebsites.net/emojis");
+				if (response == null) return;
+				var emojis = await response.Content.ReadAsStringAsync();
+				if (emojis == null) return;
+				var deserializedEmojis = JsonConvert.DeserializeObject<List<string>>(emojis);
+				if (deserializedEmojis == null) return;
+				AllEmojis = deserializedEmojis.Select(name => new Emoji
+				{
+					Name = name
+				});
+				FilteredEmojis = AllEmojis;
+			}
 		}
 	}
 }
