@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using FuseSharp;
+using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -15,13 +16,13 @@ namespace The_Emojinator
 		public EmojiDataContext()
 		{
 			#pragma warning disable CS4014 // We don't need to await here. Binding will update when it comes back
-            FetchEmojiListAsync();
+			FetchEmojiListAsync();
 			#pragma warning restore CS4014
-        }
+		}
 
-        public IEnumerable<Emoji>? AllEmojis { get; set; }
+		public IEnumerable<Emoji>? AllEmojis { get; set; }
 
-        public IEnumerable<Emoji>? FilteredEmojis
+		public IEnumerable<Emoji>? FilteredEmojis
 		{
 			get
 			{ 
@@ -37,20 +38,26 @@ namespace The_Emojinator
 		public string? EmojiFilter
 		{
 			get
-            {
+			{
 				return _emojiFilter;
-            }
+			}
 			set
-            {
+			{
 				_emojiFilter = value;
 				OnPropertyChanged(nameof(EmojiFilter));
 				if (AllEmojis == null) return;
-				if (string.IsNullOrEmpty(value) || value?.Length < 3)
+				var fuse = new Fuse(location: 0, distance: 20, threshold: 0.99, maxPatternLength: 32, isCaseSensitive: false, tokenize: false);
+				if (string.IsNullOrEmpty(value))
+				{
 					FilteredEmojis = AllEmojis;
-				else
-					FilteredEmojis = AllEmojis.Where(x => x.Name != null && x.Name.Contains(value));
-
-
+				} else
+				{
+					var results = fuse.Search(value ?? "", AllEmojis);
+					FilteredEmojis = results.Select(x =>
+					{
+						return AllEmojis.ElementAt(x.Index);
+					}).Take(30);
+				}
 			}
 		}
 
@@ -63,7 +70,7 @@ namespace The_Emojinator
 		private async Task FetchEmojiListAsync()
 		{
 			using (var httpClient = new HttpClient())
-            {
+			{
 				var response = await httpClient.GetAsync("https://emoji-server.azurewebsites.net/emojis");
 				if (response == null) return;
 				var emojis = await response.Content.ReadAsStringAsync();

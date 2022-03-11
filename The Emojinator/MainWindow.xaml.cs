@@ -33,12 +33,12 @@ namespace The_Emojinator
 			{
 				case Key.Up:
 					EmojiListBox.SelectedItem = EmojiListBox.Items.GetItemAt(
-						Math.Max(selectedIndex - 8, 0));
+						Math.Max(selectedIndex - 10, 0));
 					isHandled = true;
 					break;
 				case Key.Down:
 					EmojiListBox.SelectedItem = EmojiListBox.Items.GetItemAt(
-						Math.Min(selectedIndex + 8, EmojiListBox.Items.Count - 1));
+						Math.Min(selectedIndex + 10, EmojiListBox.Items.Count - 1));
 					isHandled = true;
 					break;
 				case Key.Left:
@@ -56,6 +56,10 @@ namespace The_Emojinator
                     if (EmojiListBox.SelectedItem is Emoji selectedEmoji && selectedEmoji.Name != null)
 						CopyEmojiToClipboard(selectedEmoji);
                     break;
+				case Key.Escape:
+					isHandled = true;
+					ResetView();
+					break;
 				default:
 					break;
 			}
@@ -87,7 +91,7 @@ namespace The_Emojinator
                 $"Version:1.0{Environment.NewLine}StartHTML:000000096{Environment.NewLine}EndHTML:000000{280 + selectedEmoji.Name.Length}{Environment.NewLine}StartFragment:000000186{Environment.NewLine}EndFragment:000000{266 + selectedEmoji.Name.Length}" +
                 $"{Environment.NewLine}<html><head><meta http-equiv=Content-Type content=\"text/html;charset=utf-8\"></head><body><meta charset='utf-8'><img src=\"{selectedEmoji.Url}\"/></body></html>",
             TextDataFormat.Html);
-			Visibility = Visibility.Collapsed;
+			ResetView();
 			BringTeamsToFront();
         }
 
@@ -113,10 +117,16 @@ namespace The_Emojinator
 				}
 			}
 		}
+			
+		private void ResetView()
+		{
+			EmojiFilterTextBox.Text = "";
+			Visibility = Visibility.Collapsed;
+		}
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-			Visibility = Visibility.Collapsed;
+			ResetView();
 			e.Cancel = true;
         }
 

@@ -5,7 +5,7 @@
 		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:wpftk="clr-namespace:WpfToolkit.Controls;assembly=VirtualizingWrapPanel"
 		mc:Ignorable="d"
-		Title="The Emojinator" Height="425" Width="350"
+		Title="The Emojinator" Height="350" Width="425"
         ShowInTaskbar="False"        
 		FocusManager.FocusedElement="{Binding ElementName=EmojiFilterTextBox}"
         Closing="Window_Closing">

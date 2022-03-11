@@ -47,7 +47,7 @@ namespace The_Emojinator
                 }
             }
 
-            public event EventHandler<KeyPressedEventArgs> KeyPressed;
+            public event EventHandler<KeyPressedEventArgs>? KeyPressed;
 
             #region IDisposable Members
 
@@ -90,7 +90,7 @@ namespace The_Emojinator
         /// <summary>
         /// A hot key has been pressed.
         /// </summary>
-        public event EventHandler<KeyPressedEventArgs> KeyPressed;
+        public event EventHandler<KeyPressedEventArgs>? KeyPressed;
 
         #region IDisposable Members
 
