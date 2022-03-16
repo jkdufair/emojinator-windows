@@ -17,11 +17,11 @@
                      PreviewKeyDown="EmojiFilterTextBox_PreviewKeyDown">
             </TextBox>
 			<ListBox x:Name="EmojiListBox"
-                     DockPanel.Dock="Bottom"
+                     DockPanel.Dock="Top"
                      ItemsSource="{Binding Path=FilteredEmojis}"
 					 ScrollViewer.VerticalScrollBarVisibility="Visible"
                      LayoutUpdated="EmojiListBox_LayoutUpdated"
-                     PreviewMouseLeftButtonDown="EmojiListBox_PreviewMouseLeftButtonDown">
+                     PreviewMouseLeftButtonDown="EmojiListBox_PreviewMouseLeftButtonDown" Height="250">
 				<ListBox.ItemTemplate>
 					<DataTemplate>
                         <Border>
@@ -47,6 +47,10 @@
 					</ItemsPanelTemplate>
 				</ListBox.ItemsPanel>
 			</ListBox>
+			<DockPanel>
+				<Image Width="24" Height="24" Margin="8,0,0,0" Source="{Binding Path=SelectedEmojiUrl}" />
+				<Label Margin="2,6,0,0" Content="{Binding Path=SelectedEmojiName}" FontSize="15" FontWeight="Bold"/>
+			</DockPanel>
 		</DockPanel>
 	</Grid>
 </Window>

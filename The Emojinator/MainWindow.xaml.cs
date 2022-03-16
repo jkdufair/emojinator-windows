@@ -1,6 +1,14 @@
-﻿using System;
+﻿using FuseSharp;
+using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
+using System.Linq;
+using System.Net.Http;
+using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 
 namespace The_Emojinator
@@ -8,16 +16,20 @@ namespace The_Emojinator
 	/// <summary>
 	/// Interaction logic for MainWindow.xaml
 	/// </summary>
-	public partial class MainWindow : Window
+	public partial class MainWindow : Window, INotifyPropertyChanged
 	{
-		int _previousItemCount = 0;
+		ItemCollection? _previousItems;
 		KeyboardHook _hook = new();
 
 		public MainWindow()
 		{
 			InitializeComponent();
 
-			DataContext = new EmojiDataContext();
+#pragma warning disable CS4014 // We don't need to await here. Binding will update when it comes back
+			FetchEmojiListAsync();
+#pragma warning restore CS4014
+
+			DataContext = this;
 			ShowInTaskbar = false;
 			WindowStartupLocation = WindowStartupLocation.CenterScreen;
 
@@ -25,40 +37,46 @@ namespace The_Emojinator
 			_hook.RegisterHotKey(ModifierKeys.Control | ModifierKeys.Alt, System.Windows.Forms.Keys.F12);
 		}
 
+		private void SetSelectedItem(int index)
+		{
+			object item = EmojiListBox.Items.GetItemAt(index);
+			EmojiListBox.SelectedItem = item;
+			SelectedEmojiName = $":{((Emoji)item).Name ?? ""}:";
+			SelectedEmojiUrl = ((Emoji)item).Url ?? "";
+
+		}
+
 		private void EmojiFilterTextBox_PreviewKeyDown(object sender, KeyEventArgs e)
 		{
 			var selectedIndex = EmojiListBox.SelectedItem == null ? 0 : EmojiListBox.Items.IndexOf(EmojiListBox.SelectedItem);
 			var isHandled = false;
+
 			switch (e.Key)
 			{
 				case Key.Up:
-					EmojiListBox.SelectedItem = EmojiListBox.Items.GetItemAt(
-						Math.Max(selectedIndex - 10, 0));
+					SetSelectedItem(Math.Max(selectedIndex - 10, 0));
 					isHandled = true;
 					break;
 				case Key.Down:
-					EmojiListBox.SelectedItem = EmojiListBox.Items.GetItemAt(
-						Math.Min(selectedIndex + 10, EmojiListBox.Items.Count - 1));
+					SetSelectedItem(Math.Min(selectedIndex + 10, EmojiListBox.Items.Count - 1));
 					isHandled = true;
 					break;
 				case Key.Left:
+					SetSelectedItem(Math.Max(selectedIndex - 1, 0));
 					isHandled = true;
-					EmojiListBox.SelectedItem = EmojiListBox.Items.GetItemAt(
-						Math.Max(selectedIndex - 1, 0));
 					break;
 				case Key.Right:
+					SetSelectedItem(Math.Min(selectedIndex + 1, EmojiListBox.Items.Count));
 					isHandled = true;
-					EmojiListBox.SelectedItem = EmojiListBox.Items.GetItemAt(
-						Math.Min(selectedIndex + 1, EmojiListBox.Items.Count));
 					break;
 				case Key.Enter:
-					isHandled = true;
                     if (EmojiListBox.SelectedItem is Emoji selectedEmoji && selectedEmoji.Name != null)
 						CopyEmojiToClipboard(selectedEmoji);
-                    break;
-				case Key.Escape:
 					isHandled = true;
+					break;
+				case Key.Escape:
 					ResetView();
+					isHandled = true;
 					break;
 				default:
 					break;
@@ -68,12 +86,16 @@ namespace The_Emojinator
 
         private void EmojiListBox_LayoutUpdated(object sender, EventArgs e)
         {
-			if (EmojiListBox.Items.Count != _previousItemCount)
-            {
-				_previousItemCount = EmojiListBox.Items.Count;
-				if (EmojiListBox.Items.Count > 0)
-					EmojiListBox.SelectedItem = EmojiListBox.Items.GetItemAt(0);
-			}
+			//if (EmojiListBox.Items.SourceCollection is IEnumerable<Emoji> &&
+			//	(_previousItems == null ||
+			//	!Enumerable.SequenceEqual(
+			//		EmojiListBox.Items.SourceCollection as IEnumerable<Emoji>,
+			//		_previousItems.SourceCollection as IEnumerable<Emoji>)))
+   //         {
+			//	_previousItems = EmojiListBox.Items;
+			//	if (EmojiListBox.Items.Count > 0)
+			//		SetSelectedItem(0);
+			//}
 				
         }
 
@@ -121,6 +143,7 @@ namespace The_Emojinator
 		private void ResetView()
 		{
 			EmojiFilterTextBox.Text = "";
+			SetSelectedItem(0);
 			Visibility = Visibility.Collapsed;
 		}
 
@@ -134,6 +157,103 @@ namespace The_Emojinator
         {
 			Visibility = Visibility.Visible;
 			Activate();
+		}
+		private IEnumerable<Emoji>? _filteredEmojis;
+		private string? _emojiFilter;
+		private string? _selectedEmojiName;
+		private string? _selectedEmojiUrl;
+
+		public IEnumerable<Emoji>? AllEmojis { get; set; }
+
+		public IEnumerable<Emoji>? FilteredEmojis
+		{
+			get
+			{
+				return _filteredEmojis;
+			}
+			set
+			{
+				_filteredEmojis = value;
+				OnPropertyChanged(nameof(FilteredEmojis));
+				SetSelectedItem(0);
+			}
+		}
+
+		public string? SelectedEmojiName
+		{
+			get
+			{
+				return _selectedEmojiName;
+			}
+			set
+			{
+				_selectedEmojiName = value;
+				OnPropertyChanged(nameof(SelectedEmojiName));
+			}
+		}
+
+		public string? SelectedEmojiUrl
+		{
+			get
+			{
+				return _selectedEmojiUrl;
+			}
+			set
+			{
+				_selectedEmojiUrl = value;
+				OnPropertyChanged(nameof(SelectedEmojiUrl));
+			}
+		}
+
+		public string? EmojiFilter
+		{
+			get
+			{
+				return _emojiFilter;
+			}
+			set
+			{
+				_emojiFilter = value;
+				OnPropertyChanged(nameof(EmojiFilter));
+				if (AllEmojis == null) return;
+				var fuse = new Fuse(location: 0, distance: 20, threshold: 0.99, maxPatternLength: 32, isCaseSensitive: false, tokenize: false);
+				if (string.IsNullOrEmpty(value))
+				{
+					FilteredEmojis = AllEmojis;
+				}
+				else
+				{
+					var results = fuse.Search(value ?? "", AllEmojis);
+					FilteredEmojis = results.Select(x =>
+					{
+						return AllEmojis.ElementAt(x.Index);
+					}).Take(30);
+				}
+			}
+		}
+
+		public event PropertyChangedEventHandler? PropertyChanged;
+		private void OnPropertyChanged(string info)
+		{
+			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(info));
+		}
+
+		private async Task FetchEmojiListAsync()
+		{
+			using (var httpClient = new HttpClient())
+			{
+				var response = await httpClient.GetAsync("https://emoji-server.azurewebsites.net/emojis");
+				if (response == null) return;
+				var emojis = await response.Content.ReadAsStringAsync();
+				if (emojis == null) return;
+				var deserializedEmojis = JsonConvert.DeserializeObject<List<string>>(emojis);
+				if (deserializedEmojis == null) return;
+				AllEmojis = deserializedEmojis.Select(name => new Emoji
+				{
+					Name = name
+				});
+				FilteredEmojis = AllEmojis;
+			}
 		}
 	}
 }
