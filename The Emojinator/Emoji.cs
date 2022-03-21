@@ -1,6 +1,5 @@
 ﻿using FuseSharp;
 using System.Collections.Generic;
-using System.Diagnostics;
 
 namespace The_Emojinator
 {
@@ -11,10 +10,12 @@ namespace The_Emojinator
         public string Url {
             get
             {
-                return $"https://emoji-server.azurewebsites.net/emoji/{Name}";
+                return $"https://emoji-server.azurewebsites.net/emoji/{Name}?s={Size ?? 24}";
             }
             private set { }
         }
+
+        public int? Size { get; set; }
 
 		public IEnumerable<FuseProperty> Properties => new[]
 		{

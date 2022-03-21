@@ -8,7 +8,6 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
 
 namespace The_Emojinator
@@ -18,7 +17,6 @@ namespace The_Emojinator
 	/// </summary>
 	public partial class MainWindow : Window, INotifyPropertyChanged
 	{
-		ItemCollection? _previousItems;
 		KeyboardHook _hook = new();
 
 		public MainWindow()
@@ -41,8 +39,10 @@ namespace The_Emojinator
 		{
 			object item = EmojiListBox.Items.GetItemAt(index);
 			EmojiListBox.SelectedItem = item;
-			SelectedEmojiName = $":{((Emoji)item).Name ?? ""}:";
-			SelectedEmojiUrl = ((Emoji)item).Url ?? "";
+			var emoji = (Emoji)item;
+			emoji.Size = 48;
+			SelectedEmojiName = $":{emoji.Name ?? ""}:";
+			SelectedEmojiUrl = emoji.Url ?? "";
 
 		}
 
@@ -71,7 +71,7 @@ namespace The_Emojinator
 					break;
 				case Key.Enter:
                     if (EmojiListBox.SelectedItem is Emoji selectedEmoji && selectedEmoji.Name != null)
-						CopyEmojiToClipboard(selectedEmoji);
+						CopyEmojiToClipboard(new Emoji { Name = selectedEmoji.Name, Size = 24 });
 					isHandled = true;
 					break;
 				case Key.Escape:
@@ -84,26 +84,11 @@ namespace The_Emojinator
 			e.Handled = isHandled;
 		}
 
-        private void EmojiListBox_LayoutUpdated(object sender, EventArgs e)
-        {
-			//if (EmojiListBox.Items.SourceCollection is IEnumerable<Emoji> &&
-			//	(_previousItems == null ||
-			//	!Enumerable.SequenceEqual(
-			//		EmojiListBox.Items.SourceCollection as IEnumerable<Emoji>,
-			//		_previousItems.SourceCollection as IEnumerable<Emoji>)))
-   //         {
-			//	_previousItems = EmojiListBox.Items;
-			//	if (EmojiListBox.Items.Count > 0)
-			//		SetSelectedItem(0);
-			//}
-				
-        }
-
         private void EmojiListBox_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (e.OriginalSource is not System.Windows.Controls.Image imageControl) return;
             if (imageControl.DataContext is not Emoji selectedEmoji) return;
-            CopyEmojiToClipboard(selectedEmoji);
+            CopyEmojiToClipboard(new Emoji { Name = selectedEmoji.Name, Size = 24 });
         }
 
         private void CopyEmojiToClipboard(Emoji selectedEmoji)
