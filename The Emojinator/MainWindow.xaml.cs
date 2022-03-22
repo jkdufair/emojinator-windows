@@ -71,7 +71,7 @@ namespace The_Emojinator
 					break;
 				case Key.Enter:
                     if (EmojiListBox.SelectedItem is Emoji selectedEmoji && selectedEmoji.Name != null)
-						CopyEmojiToClipboard(new Emoji { Name = selectedEmoji.Name, Size = 24 });
+						CopyEmojiToClipboardWithModifiers(selectedEmoji);
 					isHandled = true;
 					break;
 				case Key.Escape:
@@ -88,10 +88,18 @@ namespace The_Emojinator
         {
             if (e.OriginalSource is not System.Windows.Controls.Image imageControl) return;
             if (imageControl.DataContext is not Emoji selectedEmoji) return;
-            CopyEmojiToClipboard(new Emoji { Name = selectedEmoji.Name, Size = 24 });
+			CopyEmojiToClipboardWithModifiers(selectedEmoji);
         }
 
-        private void CopyEmojiToClipboard(Emoji selectedEmoji)
+		private void CopyEmojiToClipboardWithModifiers(Emoji selectedEmoji)
+		{
+			var size = 24;
+			if (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift)) size = 36;
+			if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl)) size = 48;
+			CopyEmojiToClipboard(new Emoji { Name = selectedEmoji.Name, Size = size });
+		}
+
+		private void CopyEmojiToClipboard(Emoji selectedEmoji)
         {
 			if (selectedEmoji.Name == null) return;
             Clipboard.SetText(

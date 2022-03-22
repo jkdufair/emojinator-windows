@@ -14,7 +14,7 @@
             <TextBox x:Name="EmojiFilterTextBox"
                      DockPanel.Dock="Top"
                      Text="{Binding Path=EmojiFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                     PreviewKeyDown="EmojiFilterTextBox_PreviewKeyDown">
+					 PreviewKeyDown="EmojiFilterTextBox_PreviewKeyDown">
             </TextBox>
 			<ListBox x:Name="EmojiListBox"
                      DockPanel.Dock="Top"
