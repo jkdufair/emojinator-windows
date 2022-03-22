@@ -5,7 +5,7 @@
 		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:wpftk="clr-namespace:WpfToolkit.Controls;assembly=VirtualizingWrapPanel"
 		mc:Ignorable="d"
-		Title="The Emojinator" Height="350" Width="425"
+		Title="The Emojinator" Height="375" Width="425"
         ShowInTaskbar="False"        
 		FocusManager.FocusedElement="{Binding ElementName=EmojiFilterTextBox}"
         Closing="Window_Closing">
@@ -14,13 +14,12 @@
             <TextBox x:Name="EmojiFilterTextBox"
                      DockPanel.Dock="Top"
                      Text="{Binding Path=EmojiFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                     PreviewKeyDown="EmojiFilterTextBox_PreviewKeyDown">
+					 PreviewKeyDown="EmojiFilterTextBox_PreviewKeyDown">
             </TextBox>
 			<ListBox x:Name="EmojiListBox"
                      DockPanel.Dock="Top"
                      ItemsSource="{Binding Path=FilteredEmojis}"
 					 ScrollViewer.VerticalScrollBarVisibility="Visible"
-                     LayoutUpdated="EmojiListBox_LayoutUpdated"
                      PreviewMouseLeftButtonDown="EmojiListBox_PreviewMouseLeftButtonDown" Height="250">
 				<ListBox.ItemTemplate>
 					<DataTemplate>
@@ -47,9 +46,9 @@
 					</ItemsPanelTemplate>
 				</ListBox.ItemsPanel>
 			</ListBox>
-			<DockPanel>
-				<Image Width="24" Height="24" Margin="8,0,0,0" Source="{Binding Path=SelectedEmojiUrl}" />
-				<Label Margin="2,6,0,0" Content="{Binding Path=SelectedEmojiName}" FontSize="15" FontWeight="Bold"/>
+			<DockPanel Height="72">
+				<Image Width="48" Height="48" Margin="12, 12,6, 12" Source="{Binding Path=SelectedEmojiUrl}" />
+				<Label Margin="0, 18, 0, 6" Content="{Binding Path=SelectedEmojiName}" FontSize="18" FontWeight="Bold"/>
 			</DockPanel>
 		</DockPanel>
 	</Grid>

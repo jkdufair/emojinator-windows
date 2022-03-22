@@ -8,6 +8,7 @@
     <UseWPF>true</UseWPF>
 	<LangVersion>preview</LangVersion>
 	<ApplicationIcon>teams-dumpsterfire-3.ico</ApplicationIcon>
+	<AssemblyVersion>1.1.0.0</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>
