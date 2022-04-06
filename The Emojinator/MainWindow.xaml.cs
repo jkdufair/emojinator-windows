@@ -21,6 +21,7 @@ namespace The_Emojinator
 
 		public MainWindow()
 		{
+			KillOtherEmojinators();
 			InitializeComponent();
 
 #pragma warning disable CS4014 // We don't need to await here. Binding will update when it comes back
@@ -132,7 +133,24 @@ namespace The_Emojinator
 				}
 			}
 		}
-			
+
+		private void KillOtherEmojinators()
+		{
+			Process[] processess = Process.GetProcessesByName("The Emojinator");
+			if (processess.Length != 0)
+			{
+				foreach (var process in processess)
+				{
+					if (process.Id != Process.GetCurrentProcess().Id)
+					{
+						process.Kill();
+						return;
+					}
+				}
+			}
+
+		}
+
 		private void ResetView()
 		{
 			EmojiFilterTextBox.Text = "";
@@ -140,7 +158,7 @@ namespace The_Emojinator
 			Visibility = Visibility.Collapsed;
 		}
 
-        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        private void Window_Closing(object sender, CancelEventArgs e)
         {
 			ResetView();
 			e.Cancel = true;
@@ -229,6 +247,11 @@ namespace The_Emojinator
 		private void OnPropertyChanged(string info)
 		{
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(info));
+		}
+
+		private void MenuItemQuit_Click(object sender, RoutedEventArgs e)
+		{
+			Application.Current.Shutdown();
 		}
 
 		private async Task FetchEmojiListAsync()

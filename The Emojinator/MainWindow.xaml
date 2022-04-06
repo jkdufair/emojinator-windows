@@ -4,12 +4,39 @@
 		xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:wpftk="clr-namespace:WpfToolkit.Controls;assembly=VirtualizingWrapPanel"
+        xmlns:tb="http://www.hardcodet.net/taskbar"
 		mc:Ignorable="d"
 		Title="The Emojinator" Height="375" Width="425"
         ShowInTaskbar="False"        
 		FocusManager.FocusedElement="{Binding ElementName=EmojiFilterTextBox}"
         Closing="Window_Closing">
+	
 	<Grid x:Name="emoji_grid">
+		<tb:TaskbarIcon x:Name="myNotifyIcon"
+                IconSource="teams-dumpsterfire-3.ico"
+				ToolTipText="The Emojinator">
+			<tb:TaskbarIcon.TrayToolTip>
+                <Border
+                  Background="White"
+                  BorderBrush="Green"
+                  BorderThickness="2"
+                  CornerRadius="4"
+                  Opacity="0.8"
+                  Width="160"
+                  Height="40">
+                  <TextBlock
+                    Text="The Emojinator"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    />
+                 </Border>
+            </tb:TaskbarIcon.TrayToolTip>
+            <tb:TaskbarIcon.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Click="MenuItemQuit_Click" Header="Quit"/>
+                </ContextMenu>
+            </tb:TaskbarIcon.ContextMenu>
+		</tb:TaskbarIcon>
 		<DockPanel>
             <TextBox x:Name="EmojiFilterTextBox"
                      DockPanel.Dock="Top"
