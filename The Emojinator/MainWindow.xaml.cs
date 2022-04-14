@@ -8,6 +8,8 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Windows;
+using NHotkey.Wpf;
+using NHotkey;
 using System.Windows.Input;
 
 namespace The_Emojinator
@@ -17,8 +19,6 @@ namespace The_Emojinator
 	/// </summary>
 	public partial class MainWindow : Window, INotifyPropertyChanged
 	{
-		KeyboardHook _hook = new();
-
 		public MainWindow()
 		{
 			KillOtherEmojinators();
@@ -32,8 +32,13 @@ namespace The_Emojinator
 			ShowInTaskbar = false;
 			WindowStartupLocation = WindowStartupLocation.CenterScreen;
 
-			_hook.KeyPressed += new EventHandler<KeyPressedEventArgs>(hook_KeyPressed);
-			_hook.RegisterHotKey(ModifierKeys.Control | ModifierKeys.Alt, System.Windows.Forms.Keys.F12);
+			HotkeyManager.Current.AddOrReplace("ShowWindow", Key.Enter, ModifierKeys.Control | ModifierKeys.Alt, hook_KeyPressed);
+		}
+
+		private void hook_KeyPressed(object sender, HotkeyEventArgs e)
+		{
+			Visibility = Visibility.Visible;
+			Activate();
 		}
 
 		private void SetSelectedItem(int index)
@@ -104,8 +109,8 @@ namespace The_Emojinator
         {
 			if (selectedEmoji.Name == null) return;
             Clipboard.SetText(
-                $"Version:1.0{Environment.NewLine}StartHTML:000000096{Environment.NewLine}EndHTML:000000{280 + selectedEmoji.Name.Length}{Environment.NewLine}StartFragment:000000186{Environment.NewLine}EndFragment:000000{266 + selectedEmoji.Name.Length}" +
-                $"{Environment.NewLine}<html><head><meta http-equiv=Content-Type content=\"text/html;charset=utf-8\"></head><body><meta charset='utf-8'><img src=\"{selectedEmoji.Url}\"/></body></html>",
+                $"Version:1.0{Environment.NewLine}StartHTML:000000096{Environment.NewLine}EndHTML:000000{280 + selectedEmoji.Name.Length}{Environment.NewLine}StartFragment:000000186{Environment.NewLine}EndFragment:000000{286 + selectedEmoji.Name.Length * 2 + selectedEmoji.Url.Length}" +
+                $"{Environment.NewLine}<html><head><meta http-equiv=Content-Type content=\"text/html;charset=utf-8\"></head><body><meta charset='utf-8'><img src=\"{selectedEmoji.Url}\" alt=\":{selectedEmoji.Name}:\" title=\":{selectedEmoji.Name}:\"/></body></html>",
             TextDataFormat.Html);
 			ResetView();
 			BringTeamsToFront();
@@ -164,11 +169,12 @@ namespace The_Emojinator
 			e.Cancel = true;
         }
 
-		void hook_KeyPressed(object sender, KeyPressedEventArgs e)
-        {
+		private void myNotifyIcon_TrayMouseDoubleClick(object sender, RoutedEventArgs e)
+		{
 			Visibility = Visibility.Visible;
 			Activate();
 		}
+
 		private IEnumerable<Emoji>? _filteredEmojis;
 		private string? _emojiFilter;
 		private string? _selectedEmojiName;
@@ -227,7 +233,7 @@ namespace The_Emojinator
 				_emojiFilter = value;
 				OnPropertyChanged(nameof(EmojiFilter));
 				if (AllEmojis == null) return;
-				var fuse = new Fuse(location: 0, distance: 20, threshold: 0.99, maxPatternLength: 32, isCaseSensitive: false, tokenize: false);
+				var fuse = new Fuse(location: 0, distance: 100, threshold: 0.35, maxPatternLength: 32, isCaseSensitive: false, tokenize: false);
 				if (string.IsNullOrEmpty(value))
 				{
 					FilteredEmojis = AllEmojis;

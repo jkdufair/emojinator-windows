@@ -14,7 +14,8 @@
 	<Grid x:Name="emoji_grid">
 		<tb:TaskbarIcon x:Name="myNotifyIcon"
                 IconSource="teams-dumpsterfire-3.ico"
-				ToolTipText="The Emojinator">
+				ToolTipText="The Emojinator"
+				TrayMouseDoubleClick="myNotifyIcon_TrayMouseDoubleClick">
 			<tb:TaskbarIcon.TrayToolTip>
                 <Border
                   Background="White"
