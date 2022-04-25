@@ -1,5 +1,7 @@
 ﻿using FuseSharp;
 using Newtonsoft.Json;
+using NHotkey;
+using NHotkey.Wpf;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -8,8 +10,6 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Windows;
-using NHotkey.Wpf;
-using NHotkey;
 using System.Windows.Input;
 
 namespace The_Emojinator
@@ -32,10 +32,10 @@ namespace The_Emojinator
 			ShowInTaskbar = false;
 			WindowStartupLocation = WindowStartupLocation.CenterScreen;
 
-			HotkeyManager.Current.AddOrReplace("ShowWindow", Key.Enter, ModifierKeys.Control | ModifierKeys.Alt, hook_KeyPressed);
+			HotkeyManager.Current.AddOrReplace("ShowWindow", Key.Enter, ModifierKeys.Control | ModifierKeys.Alt, Hook_KeyPressed);
 		}
 
-		private void hook_KeyPressed(object sender, HotkeyEventArgs e)
+		private void Hook_KeyPressed(object sender, HotkeyEventArgs e)
 		{
 			Visibility = Visibility.Visible;
 			Activate();
@@ -49,7 +49,6 @@ namespace The_Emojinator
 			emoji.Size = 48;
 			SelectedEmojiName = $":{emoji.Name ?? ""}:";
 			SelectedEmojiUrl = emoji.Url ?? "";
-
 		}
 
 		private void EmojiFilterTextBox_PreviewKeyDown(object sender, KeyEventArgs e)
@@ -63,39 +62,45 @@ namespace The_Emojinator
 					SetSelectedItem(Math.Max(selectedIndex - 10, 0));
 					isHandled = true;
 					break;
+
 				case Key.Down:
 					SetSelectedItem(Math.Min(selectedIndex + 10, EmojiListBox.Items.Count - 1));
 					isHandled = true;
 					break;
+
 				case Key.Left:
 					SetSelectedItem(Math.Max(selectedIndex - 1, 0));
 					isHandled = true;
 					break;
+
 				case Key.Right:
 					SetSelectedItem(Math.Min(selectedIndex + 1, EmojiListBox.Items.Count));
 					isHandled = true;
 					break;
+
 				case Key.Enter:
-                    if (EmojiListBox.SelectedItem is Emoji selectedEmoji && selectedEmoji.Name != null)
+					if (EmojiListBox.SelectedItem is Emoji selectedEmoji && selectedEmoji.Name != null)
 						CopyEmojiToClipboardWithModifiers(selectedEmoji);
 					isHandled = true;
 					break;
+
 				case Key.Escape:
 					ResetView();
 					isHandled = true;
 					break;
+
 				default:
 					break;
 			}
 			e.Handled = isHandled;
 		}
 
-        private void EmojiListBox_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            if (e.OriginalSource is not System.Windows.Controls.Image imageControl) return;
-            if (imageControl.DataContext is not Emoji selectedEmoji) return;
+		private void EmojiListBox_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+		{
+			if (e.OriginalSource is not System.Windows.Controls.Image imageControl) return;
+			if (imageControl.DataContext is not Emoji selectedEmoji) return;
 			CopyEmojiToClipboardWithModifiers(selectedEmoji);
-        }
+		}
 
 		private void CopyEmojiToClipboardWithModifiers(Emoji selectedEmoji)
 		{
@@ -106,33 +111,33 @@ namespace The_Emojinator
 		}
 
 		private void CopyEmojiToClipboard(Emoji selectedEmoji)
-        {
+		{
 			if (selectedEmoji.Name == null) return;
-            Clipboard.SetText(
-                $"Version:1.0{Environment.NewLine}StartHTML:000000096{Environment.NewLine}EndHTML:000000{280 + selectedEmoji.Name.Length}{Environment.NewLine}StartFragment:000000186{Environment.NewLine}EndFragment:000000{286 + selectedEmoji.Name.Length * 2 + selectedEmoji.Url.Length}" +
-                $"{Environment.NewLine}<html><head><meta http-equiv=Content-Type content=\"text/html;charset=utf-8\"></head><body><meta charset='utf-8'><img src=\"{selectedEmoji.Url}\" alt=\":{selectedEmoji.Name}:\" title=\":{selectedEmoji.Name}:\"/></body></html>",
-            TextDataFormat.Html);
+			Clipboard.SetText(
+				$"Version:1.0{Environment.NewLine}StartHTML:000000096{Environment.NewLine}EndHTML:000000{280 + selectedEmoji.Name.Length}{Environment.NewLine}StartFragment:000000186{Environment.NewLine}EndFragment:000000{286 + selectedEmoji.Name.Length * 2 + selectedEmoji.Url.Length}" +
+				$"{Environment.NewLine}<html><head><meta http-equiv=Content-Type content=\"text/html;charset=utf-8\"></head><body><meta charset='utf-8'><img src=\"{selectedEmoji.Url}\" alt=\":{selectedEmoji.Name}:\" title=\":{selectedEmoji.Name}:\"/></body></html>",
+			TextDataFormat.Html);
 			ResetView();
 			BringTeamsToFront();
-        }
+		}
 
 		[System.Runtime.InteropServices.DllImport("User32.dll")]
 		private static extern bool SetForegroundWindow(IntPtr handle);
 
-		private IntPtr handle;
+		private IntPtr _handle;
 
 		private void BringTeamsToFront()
 		{
-			Process[] processess = Process.GetProcessesByName("Teams");
-			if (processess.Length != 0)
+			Process[] processes = Process.GetProcessesByName("Teams");
+			if (processes.Length != 0)
 			{
 				//Set foreground window
-				foreach (var process in processess)
-                {
+				foreach (var process in processes)
+				{
 					if (process.MainWindowHandle != IntPtr.Zero)
-                    {
-						handle = process.MainWindowHandle;
-						SetForegroundWindow(handle);
+					{
+						_handle = process.MainWindowHandle;
+						SetForegroundWindow(_handle);
 						return;
 					}
 				}
@@ -141,10 +146,10 @@ namespace The_Emojinator
 
 		private void KillOtherEmojinators()
 		{
-			Process[] processess = Process.GetProcessesByName("The Emojinator");
-			if (processess.Length != 0)
+			Process[] processes = Process.GetProcessesByName("The Emojinator");
+			if (processes.Length != 0)
 			{
-				foreach (var process in processess)
+				foreach (var process in processes)
 				{
 					if (process.Id != Process.GetCurrentProcess().Id)
 					{
@@ -153,7 +158,6 @@ namespace The_Emojinator
 					}
 				}
 			}
-
 		}
 
 		private void ResetView()
@@ -163,11 +167,11 @@ namespace The_Emojinator
 			Visibility = Visibility.Collapsed;
 		}
 
-        private void Window_Closing(object sender, CancelEventArgs e)
-        {
+		private void Window_Closing(object sender, CancelEventArgs e)
+		{
 			ResetView();
 			e.Cancel = true;
-        }
+		}
 
 		private void myNotifyIcon_TrayMouseDoubleClick(object sender, RoutedEventArgs e)
 		{
@@ -184,10 +188,7 @@ namespace The_Emojinator
 
 		public IEnumerable<Emoji>? FilteredEmojis
 		{
-			get
-			{
-				return _filteredEmojis;
-			}
+			get => _filteredEmojis;
 			set
 			{
 				_filteredEmojis = value;
@@ -198,10 +199,7 @@ namespace The_Emojinator
 
 		public string? SelectedEmojiName
 		{
-			get
-			{
-				return _selectedEmojiName;
-			}
+			get => _selectedEmojiName;
 			set
 			{
 				_selectedEmojiName = value;
@@ -211,10 +209,7 @@ namespace The_Emojinator
 
 		public string? SelectedEmojiUrl
 		{
-			get
-			{
-				return _selectedEmojiUrl;
-			}
+			get => _selectedEmojiUrl;
 			set
 			{
 				_selectedEmojiUrl = value;
@@ -224,10 +219,7 @@ namespace The_Emojinator
 
 		public string? EmojiFilter
 		{
-			get
-			{
-				return _emojiFilter;
-			}
+			get => _emojiFilter;
 			set
 			{
 				_emojiFilter = value;
@@ -241,15 +233,13 @@ namespace The_Emojinator
 				else
 				{
 					var results = fuse.Search(value ?? "", AllEmojis);
-					FilteredEmojis = results.Select(x =>
-					{
-						return AllEmojis.ElementAt(x.Index);
-					}).Take(30);
+					FilteredEmojis = results.Select(x => AllEmojis.ElementAt(x.Index)).Take(30);
 				}
 			}
 		}
 
 		public event PropertyChangedEventHandler? PropertyChanged;
+
 		private void OnPropertyChanged(string info)
 		{
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(info));
